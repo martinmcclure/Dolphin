@@ -226,7 +226,7 @@ IconicListAbstract subclass: #TabView
 	poolDictionaries: 'TabViewConstants'
 	classInstanceVariableNames: ''!
 IconicListAbstract subclass: #TreeView
-	instanceVariableNames: 'handleObjectMap indentSeparation viewMode tvFlags objectHandleMap'
+	instanceVariableNames: 'handleObjectMap indentSeparation viewMode tvFlags objectHandleMap hasDeferredSelection'
 	classVariableNames: 'DisableExpandAllMask NonVirtualMask TvnMap UpdateModeMask UpdateModes'
 	poolDictionaries: 'TreeViewConstants'
 	classInstanceVariableNames: ''!
