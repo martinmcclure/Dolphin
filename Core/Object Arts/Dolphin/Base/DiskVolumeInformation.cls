@@ -158,31 +158,31 @@ getDiskStats
 getVolumeInformation
 	"Private - Call the Win32 GetVolumeInformation() API to retrieve the label, etc."
 
-	| volumeNameBuffer volumeSerialNumber maximumComponentLengthBuffer
-		fileSystemFlagsBuffer fileSystemNameBuffer |
-
+	| volumeNameBuffer volumeSerialNumber maximumComponentLengthBuffer fileSystemFlagsBuffer fileSystemNameBuffer |
 	volumeNameBuffer := File pathBuffer.
-	volumeSerialNumber := DWORD new.
-	maximumComponentLengthBuffer := DWORD new.
-	fileSystemFlagsBuffer := DWORD new.
-	fileSystemNameBuffer := String new: 32.
-
+	volumeSerialNumber := DWORDBytes new.
+	maximumComponentLengthBuffer := DWORDBytes new.
+	fileSystemFlagsBuffer := DWORDBytes new.
+	fileSystemNameBuffer := File pathBuffer.
 	(KernelLibrary default
 		getVolumeInformation: self rootPath
 		lpVolumeNameBuffer: volumeNameBuffer
-		nVolumeNameSize: volumeNameBuffer size
+		nVolumeNameSize: volumeNameBuffer byteSize
 		lpVolumeSerialNumber: volumeSerialNumber
 		lpMaximumComponentLength: maximumComponentLengthBuffer
-		lpFileSystemFlags: fileSystemFlags
+		lpFileSystemFlags: fileSystemFlagsBuffer
 		lpFileSystemNameBuffer: fileSystemNameBuffer
-		nFileSystemNameSize: fileSystemNameBuffer size) 
-			ifFalse: [KernelLibrary default systemError].
-
+		nFileSystemNameSize: fileSystemNameBuffer byteSize) ifFalse: [KernelLibrary default systemError].
 	label := volumeNameBuffer trimNulls.
 	serialNumber := volumeSerialNumber value.
 	maxComponentLength := maximumComponentLengthBuffer value.
 	fileSystemFlags := fileSystemFlagsBuffer value.
-	fileSystemName := fileSystemNameBuffer trimNulls.!
+	fileSystemName := fileSystemNameBuffer trimNulls!
+
+isSparseFileCapable
+	"Answer whether the file system supports sparse files."
+
+	^self fileSystemFlags allMask: Win32Constants.FILE_SUPPORTS_SPARSE_FILES!
 
 label
 	"Answer the <readableString> disk volume label. If the disk is not labelled 
@@ -276,6 +276,7 @@ totalFreeBytes
 !DiskVolumeInformation categoriesFor: #getDiskFreeSpaceEx!helpers!private! !
 !DiskVolumeInformation categoriesFor: #getDiskStats!helpers!private! !
 !DiskVolumeInformation categoriesFor: #getVolumeInformation!helpers!private! !
+!DiskVolumeInformation categoriesFor: #isSparseFileCapable!accessing!public! !
 !DiskVolumeInformation categoriesFor: #label!accessing!public! !
 !DiskVolumeInformation categoriesFor: #label:!accessing!public! !
 !DiskVolumeInformation categoriesFor: #maxComponentLength!accessing!public! !
