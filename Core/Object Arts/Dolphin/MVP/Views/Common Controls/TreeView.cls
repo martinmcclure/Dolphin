@@ -1,7 +1,7 @@
 "Filed out from Dolphin Smalltalk 7"!
 
 IconicListAbstract subclass: #TreeView
-	instanceVariableNames: 'handleObjectMap indentSeparation viewMode tvFlags objectHandleMap hasDeferredSelection'
+	instanceVariableNames: 'handleObjectMap indentSeparation viewMode tvFlags objectHandleMap'
 	classVariableNames: 'DisableExpandAllMask NonVirtualMask TvnMap UpdateModeMask UpdateModes'
 	poolDictionaries: 'TreeViewConstants'
 	classInstanceVariableNames: ''!
@@ -607,28 +607,6 @@ nmRClick: pNMHDR
 	"Suppress default processing"
 	^true!
 
-nmSelChanged: anExternalAddress 
-	"Private - Windows has a bug in which the selection changed event is received by the TreeView 
-	before any other widget gets a KillFocus event. This means that edits can be lost (since they
-	typically get applied on a KillFocus). So, we defer the selection changed processing till we gain
-	focus. See https://github.com/dolphinsmalltalk/Dolphin/issues/453 for details."
-
-	self hasFocusDeeply
-		ifTrue: [self onSelChanged: self selectionsByIndex]
-		ifFalse: [hasDeferredSelection := true].
-	^nil	"to accept default processing"
-!
-
-nmSetFocus: pNMHDR
-	"Default handler for a NM_SETFOCUS notification message.
-	Answer nil to accept default processing."
-  
-	hasDeferredSelection == true ifTrue: [
-		hasDeferredSelection := false.
-		self onSelChanged: self selectionsByIndex.		"copied from nmSelChanged:"
-	].
-	^super nmSetFocus: pNMHDR!
-
 notificationClass
 	"Private - Answer the class of NMXXXXVIEW structure associated with the receiver."
 
@@ -821,6 +799,12 @@ onSelChanging: anExternalAddress
 				cause: (#(#mouse #keyboard) at: action)]!
 
 onSelChangingFrom: oldSelection to: newSelection cause: aSymbol 
+	"Private - Windows has a bug in which the selection changed event is received by the TreeView 
+	before any other widget gets a KillFocus event. This means that edits can be lost (since they
+	typically get applied on a KillFocus). So, if a proposed selection change is approved, we first
+	change the focus to us so the other widget will get a KillFocus before the actual change.
+	See https://github.com/dolphinsmalltalk/Dolphin/issues/453 for details."
+
 	| event |
 	event := SelectionChangingEvent forSource: self.
 	event
@@ -830,6 +814,7 @@ onSelChangingFrom: oldSelection to: newSelection cause: aSymbol
 	"If the old selection is nil, and the source of the change is unknown, then  assume the 
 	selection change cannot be prevented, as it may result from the deletion of an item."
 	self presenter onSelectionChanging: event.
+	(event value and: [self hasFocusDeeply not]) ifTrue: [self setFocus].
 	^event value!
 
 onTreeChanged: anObject
@@ -1254,8 +1239,6 @@ wmKeyDown: message wParam: wParam lParam: lParam
 !TreeView categoriesFor: #nmDeleteItem:!event handling-win32!private! !
 !TreeView categoriesFor: #nmNotify:!event handling!event handling-win32!private! !
 !TreeView categoriesFor: #nmRClick:!event handling-win32!public! !
-!TreeView categoriesFor: #nmSelChanged:!event handling-win32!private! !
-!TreeView categoriesFor: #nmSetFocus:!event handling-win32!private! !
 !TreeView categoriesFor: #notificationClass!constants!private! !
 !TreeView categoriesFor: #objectFromHandle:ifAbsent:!accessing!private! !
 !TreeView categoriesFor: #onAdd:atIndex:!event handling!private! !
