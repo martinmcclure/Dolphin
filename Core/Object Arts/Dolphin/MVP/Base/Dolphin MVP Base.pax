@@ -104,6 +104,7 @@ package classNames
 	add: #GridLayout;
 	add: #GroupBox;
 	add: #GUISessionManager;
+	add: #HARDWAREINPUT;
 	add: #HistoryList;
 	add: #HTMLHelpLibrary;
 	add: #Icon;
@@ -113,9 +114,11 @@ package classNames
 	add: #ImageManager;
 	add: #ImageViewAbstract;
 	add: #IndexedColor;
+	add: #INPUT;
 	add: #Interactor;
 	add: #InternalDragDropObject;
 	add: #InternalDragDropSession;
+	add: #KEYBDINPUT;
 	add: #KeyEvent;
 	add: #LASTINPUTINFO;
 	add: #LayoutContext;
@@ -137,6 +140,7 @@ package classNames
 	add: #MINMAXINFO;
 	add: #MockThemeLibrary;
 	add: #MouseEvent;
+	add: #MOUSEINPUT;
 	add: #MouseTracker;
 	add: #MouseWheelEvent;
 	add: #Msimg32Library;
@@ -379,6 +383,7 @@ package globalNames
 	add: #ButtonConstants;
 	add: #CommCtrlConstants;
 	add: #HTMLHelpConstants;
+	add: #InputConstants;
 	add: #POINT;
 	add: #RECTL;
 	add: #SIZEL;
@@ -786,7 +791,22 @@ Win32Structure subclass: #GRADIENT_TRIANGLE
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+Win32Structure subclass: #HARDWAREINPUT
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 Win32Structure subclass: #ICONINFO
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Win32Structure subclass: #INPUT
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'InputConstants'
+	classInstanceVariableNames: ''!
+Win32Structure subclass: #KEYBDINPUT
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -835,6 +855,11 @@ Win32Structure subclass: #MINMAXINFO
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Win32Structure subclass: #MOUSEINPUT
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: 'InputConstants'
 	classInstanceVariableNames: ''!
 Win32Structure subclass: #NMHDR
 	instanceVariableNames: ''
