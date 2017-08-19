@@ -50,21 +50,17 @@ dy: anInteger
 
 	bytes sdwordAtOffset: ##(self offsetOf: #dy) put: anInteger!
 
-leftButtonDownAt: aPoint
+leftButtonDown
 
 	self 
-		dx: aPoint x;
-		dy: aPoint y;
-		dwFlags:  MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK;
+		dwFlags:  MOUSEEVENTF_LEFTDOWN;
 		yourself.
 !
 
-leftButtonUpAt: aPoint
+leftButtonUp
 
 	self
-		dx: aPoint x;
-		dy: aPoint y;
-		dwFlags:  MOUSEEVENTF_LEFTUP | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK;
+		dwFlags:  MOUSEEVENTF_LEFTUP;
 		yourself.
 !
 
@@ -77,6 +73,17 @@ mouseData: anInteger
 	"Set the receiver's 'mouseData' field to the value of the argument, anInteger"
 
 	bytes dwordAtOffset: ##(self offsetOf: #mouseData) put: anInteger!
+
+moveTo: aPoint
+
+	| extent |
+	extent := DesktopView current extent.
+	self 
+		dx: aPoint x - 1 * 65536 // extent x;
+		dy: aPoint y - 1 * 65536 // extent y;
+		dwFlags:  MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE;
+		yourself.
+!
 
 time
 	"Answer the <Integer> value of the receiver's 'time' field."
@@ -95,10 +102,11 @@ time: anInteger
 !MOUSEINPUT categoriesFor: #dx:!**compiled accessors**!public! !
 !MOUSEINPUT categoriesFor: #dy!**compiled accessors**!public! !
 !MOUSEINPUT categoriesFor: #dy:!**compiled accessors**!public! !
-!MOUSEINPUT categoriesFor: #leftButtonDownAt:!public! !
-!MOUSEINPUT categoriesFor: #leftButtonUpAt:!public! !
+!MOUSEINPUT categoriesFor: #leftButtonDown!convenience!public! !
+!MOUSEINPUT categoriesFor: #leftButtonUp!convenience!public! !
 !MOUSEINPUT categoriesFor: #mouseData!**compiled accessors**!public! !
 !MOUSEINPUT categoriesFor: #mouseData:!**compiled accessors**!public! !
+!MOUSEINPUT categoriesFor: #moveTo:!convenience!public! !
 !MOUSEINPUT categoriesFor: #time!**compiled accessors**!public! !
 !MOUSEINPUT categoriesFor: #time:!**compiled accessors**!public! !
 

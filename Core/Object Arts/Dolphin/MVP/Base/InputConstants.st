@@ -4,6 +4,10 @@ Smalltalk at: #InputConstants put: (PoolConstantsDictionary named: #InputConstan
 InputConstants at: 'INPUT_HARDWARE' put: 16r2!
 InputConstants at: 'INPUT_KEYBOARD' put: 16r1!
 InputConstants at: 'INPUT_MOUSE' put: 16r0!
+InputConstants at: 'KEYEVENTF_EXTENDEDKEY' put: 16r1!
+InputConstants at: 'KEYEVENTF_KEYUP' put: 16r2!
+InputConstants at: 'KEYEVENTF_SCANCODE' put: 16r8!
+InputConstants at: 'KEYEVENTF_UNICODE' put: 16r4!
 InputConstants at: 'MOUSEEVENTF_ABSOLUTE' put: 16r8000!
 InputConstants at: 'MOUSEEVENTF_HWHEEL' put: 16r1000!
 InputConstants at: 'MOUSEEVENTF_LEFTDOWN' put: 16r2!

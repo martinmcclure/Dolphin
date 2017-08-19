@@ -52,6 +52,17 @@ mi: aMOUSEINPUT
 		to: ##((self offsetOf: #mi) + MOUSEINPUT basicByteSize)
 		startingAt: 1!
 
+send
+
+	| result |
+	result := UserLibrary default
+		sendInput: 1
+		inputs: self 
+		size: self byteSize.
+	result == 1 ifTrue: [^self].
+	KernelLibrary default systemError: Processor activeProcess lastError.
+!
+
 type
 	"Answer the <Integer> value of the receiver's 'type' field."
 
@@ -67,6 +78,7 @@ type: anInteger
 !INPUT categoriesFor: #ki:!**compiled accessors**!public! !
 !INPUT categoriesFor: #mi!**compiled accessors**!public! !
 !INPUT categoriesFor: #mi:!**compiled accessors**!public! !
+!INPUT categoriesFor: #send!public! !
 !INPUT categoriesFor: #type!**compiled accessors**!public! !
 !INPUT categoriesFor: #type:!**compiled accessors**!public! !
 
@@ -92,19 +104,19 @@ defineFields
 		defineField: #hi		type: (StructureField type: HARDWAREINPUT )	offset: DWORDField byteSize;
 		yourself.!
 
-leftButtonDownAt: aPoint
+leftButtonClickAt: aPoint
 
 	| input |
 	input := self newMouseInput.
-	input mi leftButtonDownAt: aPoint.
-	^input!
-
-leftButtonUpAt: aPoint
-
-	| input |
+	input mi moveTo: aPoint.
+	input send.
 	input := self newMouseInput.
-	input mi leftButtonUpAt: aPoint.
-	^input!
+	input mi leftButtonDown.
+	input send.
+	input := self newMouseInput.
+	input mi leftButtonUp.
+	input send.
+!
 
 newHardwareInput
 
@@ -122,11 +134,25 @@ newMouseInput
 
 	^self new
 		type: INPUT_MOUSE;
-		yourself! !
+		yourself!
+
+sendVKey: anInteger
+"
+To see this in operation, maximize the window then execute the following line:
+	(Delay forSeconds: 1) wait. INPUT leftButtonClickAt: 15@15. INPUT sendVKey: $R codePoint.
+"
+	| input |
+	input := self newKeyboardInput.
+	input ki vKeyDown: anInteger.
+	input send.
+	input := self newKeyboardInput.
+	input ki vKeyDown: anInteger.
+	input send.
+! !
 !INPUT class categoriesFor: #defineFields!public! !
-!INPUT class categoriesFor: #leftButtonDownAt:!public! !
-!INPUT class categoriesFor: #leftButtonUpAt:!public! !
+!INPUT class categoriesFor: #leftButtonClickAt:!public! !
 !INPUT class categoriesFor: #newHardwareInput!public! !
 !INPUT class categoriesFor: #newKeyboardInput!public! !
 !INPUT class categoriesFor: #newMouseInput!public! !
+!INPUT class categoriesFor: #sendVKey:!public! !
 

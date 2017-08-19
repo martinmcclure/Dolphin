@@ -3,7 +3,7 @@
 Win32Structure subclass: #KEYBDINPUT
 	instanceVariableNames: ''
 	classVariableNames: ''
-	poolDictionaries: ''
+	poolDictionaries: 'InputConstants'
 	classInstanceVariableNames: ''!
 KEYBDINPUT guid: (GUID fromString: '{c98d2650-ff4a-463a-ba10-8202472c5477}')!
 KEYBDINPUT comment: ''!
@@ -40,6 +40,19 @@ time: anInteger
 
 	bytes dwordAtOffset: ##(self offsetOf: #time) put: anInteger!
 
+vKeyDown: anInteger
+
+	self wVk: anInteger.
+!
+
+vKeyUp: anInteger
+
+	self 
+		wVk: anInteger;
+		dwFlags: KEYEVENTF_KEYUP;
+		yourself.
+!
+
 wScan
 	"Answer the <Integer> value of the receiver's 'wScan' field."
 
@@ -65,6 +78,8 @@ wVk: anInteger
 !KEYBDINPUT categoriesFor: #dwFlags:!**compiled accessors**!public! !
 !KEYBDINPUT categoriesFor: #time!**compiled accessors**!public! !
 !KEYBDINPUT categoriesFor: #time:!**compiled accessors**!public! !
+!KEYBDINPUT categoriesFor: #vKeyDown:!**compiled accessors**!convenience!public! !
+!KEYBDINPUT categoriesFor: #vKeyUp:!**compiled accessors**!convenience!public! !
 !KEYBDINPUT categoriesFor: #wScan!**compiled accessors**!public! !
 !KEYBDINPUT categoriesFor: #wScan:!**compiled accessors**!public! !
 !KEYBDINPUT categoriesFor: #wVk!**compiled accessors**!public! !

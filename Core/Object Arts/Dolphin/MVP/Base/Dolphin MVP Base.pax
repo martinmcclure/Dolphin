@@ -338,6 +338,7 @@ package methodNames
 	add: #UserLibrary -> #screenToClient:lpPoint:;
 	add: #UserLibrary -> #scrollWindowEx:dx:dy:prcScroll:prcClip:hrgnUpdate:prcUpdate:flags:;
 	add: #UserLibrary -> #sendDlgItemMessage:nIDDlgItem:msg:wParam:lParam:;
+	add: #UserLibrary -> #sendInput:inputs:size:;
 	add: #UserLibrary -> #sendMessage:msg:wParam:lpParam:;
 	add: #UserLibrary -> #sendMessage:msg:wpParam:lpParam:;
 	add: #UserLibrary -> #setCapture:;
@@ -809,7 +810,7 @@ Win32Structure subclass: #INPUT
 Win32Structure subclass: #KEYBDINPUT
 	instanceVariableNames: ''
 	classVariableNames: ''
-	poolDictionaries: ''
+	poolDictionaries: 'InputConstants'
 	classInstanceVariableNames: ''!
 Win32Structure subclass: #LASTINPUTINFO
 	instanceVariableNames: ''
@@ -2679,6 +2680,11 @@ sendDlgItemMessage: aWindowHandle nIDDlgItem: anIntegerId msg: aString wParam: w
 	<stdcall: uintptr SendDlgItemMessageA handle sdword dword uintptr intptr>
 	^self invalidCall!
 
+sendInput: nInputs inputs: pInputs size: cbSize
+
+	<stdcall: dword SendInput dword INPUT* sdword>
+	^self invalidCall !
+
 sendMessage: aWindowHandle msg: msg wParam: wParam lpParam: lParam
 	"As sendMessage:msg:wParam:lParam, but implicit conversion of lParam
 	to pointer."
@@ -3179,6 +3185,7 @@ winHelp: hwndMain lpszHelp: lpszHelp uCommand: uCommand dwData: dwData
 !UserLibrary categoriesFor: #screenToClient:lpPoint:!public!win32 functions-coordinate space and transformation! !
 !UserLibrary categoriesFor: #scrollWindowEx:dx:dy:prcScroll:prcClip:hrgnUpdate:prcUpdate:flags:!public!win32 functions-window! !
 !UserLibrary categoriesFor: #sendDlgItemMessage:nIDDlgItem:msg:wParam:lParam:!public!win32 functions-dialog box! !
+!UserLibrary categoriesFor: #sendInput:inputs:size:!public!win32 functions-message and message queue! !
 !UserLibrary categoriesFor: #sendMessage:msg:wParam:lpParam:!public!win32 functions-message and message queue! !
 !UserLibrary categoriesFor: #sendMessage:msg:wpParam:lpParam:!public!win32 functions-message and message queue! !
 !UserLibrary categoriesFor: #setCapture:!public!win32 functions-mouse input! !
