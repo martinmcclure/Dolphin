@@ -3182,7 +3182,7 @@ setWindowLong: anIntegerOffset to: anIntegerValue
 	"Private - Set the receiver's Window DWORD at the specified offset to the specified integer value."
 
 	^UserLibrary default
-		setWindowLong: handle
+		setWindowLongA: handle
 		nIndex: anIntegerOffset
 		dwNewLong: anIntegerValue!
 
@@ -3671,26 +3671,6 @@ winFinalize
 
 	self isStateRestoring ifFalse: [self release].
 	SessionManager inputState removeWindowAt: handle!
-
-winHelpPopup: helpFileString topic: topicId 
-	^self 
-		winHelpPopup: helpFileString
-		topic: topicId
-		at: nil!
-
-winHelpPopup: helpFileString topic: topicId at: aPointOrNil 
-	aPointOrNil notNil 
-		ifTrue: 
-			[UserLibrary default 
-				winHelp: View active handle
-				lpszHelp: ''
-				uCommand: HELP_SETPOPUP_POS
-				dwData: aPointOrNil asUIntPtr].
-	^UserLibrary default 
-		winHelp: self handle
-		lpszHelp: helpFileString
-		uCommand: HELP_CONTEXTPOPUP
-		dwData: topicId!
 
 withAllParents
 	"Answer an <sequencedReadableCollection> of self and all its parent Views, in inverse hierarchy order."
@@ -4852,8 +4832,6 @@ zOrderTop
 !View categoriesFor: #width:!geometry!public! !
 !View categoriesFor: #windowName!private!realizing/unrealizing! !
 !View categoriesFor: #winFinalize!finalizing!private! !
-!View categoriesFor: #winHelpPopup:topic:!public! !
-!View categoriesFor: #winHelpPopup:topic:at:!public! !
 !View categoriesFor: #withAllParents!hierarchy!public! !
 !View categoriesFor: #withAllParentsDo:!hierarchy!public! !
 !View categoriesFor: #withAllSubViews!hierarchy!public! !
@@ -5510,11 +5488,11 @@ winClassIcon
 	^0!
 
 winClassName
-	"Private - Answer the Windows class name, or atom, to be used when creating Windows attached
+	"Private - Answer the Windows class name to be used when creating Windows attached
 	to instances of the receiver."
 
 	WndClassAtom isNil ifTrue: [WndClassAtom := self reregisterClass].
-	^WndClassAtom!
+	^self wndClassName!
 
 winClassStyle
 	"Private - Answer the default class style to be used for instances of the receiver."

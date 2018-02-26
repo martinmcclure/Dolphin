@@ -71,8 +71,7 @@ _equalsByteString: aString
 	"Private - Answer whether the receiver is equivalent to the byte <String>, aString. 
 	Double-dispatched from String>>=."
 
-	"We should only get here if the byte comparison primitive failed unexpectedly."
-	^aString primitiveFailed!
+	^self asUtf8String = aString!
 
 _equalsUtf16String: aUtf16String
 	"Private - Answer whether the receiver is equivalent to the <Utf16String>, aString. 
@@ -166,7 +165,8 @@ _separateSubStringsIn: aReadableString
 asAnsiString
 	"Answer an ANSI encoded string representation of the receiver."
 
-	#todo. "Make String abstract, with AnsiString subclass"
+	<primitive: 217>
+	#todo.	"Make String abstract, with AnsiString subclass"
 	^self!
 
 asByteArray
@@ -259,11 +259,27 @@ asUppercase
 	^copy!
 
 asUtf16String
-	^self class utf16Class fromString: self!
+	"Answer a UTF16-encoded equivalent of the receiver."
+
+	| answer cch |
+	<primitive: 215>
+	cch := self size.
+	cch == 0 ifTrue: [^Utf16String empty].	"The result will have at most the number of code points as are present in the input, probably fewer if the input is UTF8"
+	answer := Utf16String new: cch.
+	^(cch := KernelLibrary default
+				multiByteToWideChar: self codePage
+				dwFlags: 0
+				lpMultiByteStr: self
+				cchMultiByte: cch
+				lpWideCharStr: answer
+				cchWideChar: cch) == 0
+		ifTrue: [KernelLibrary default systemError]
+		ifFalse: [answer resize: cch]	"MB_ERR_INVALID_CHARS"!
 
 asUtf8String
 	"Answer a UTF8 encoded string representation of the receiver."
 
+	<primitive: 216>
 	^self asUtf16String asUtf8String!
 
 at: index
@@ -345,6 +361,13 @@ contains: aString
 	"Answer whether the receiver contains the specified sub-string."
 
 	^(self findString: aString startingAt: 1) ~~ 0!
+
+copyToBuffer: anAddress ofSize: anInteger
+	CRTLibrary default
+		strncpy_s: anAddress
+		bufferSize: anInteger
+		strSource: self
+		count: CRTConstants._TRUNCATE!
 
 displayOn: aStream
 	"Append the receiver in end-user form to aStream. Since this message is intended
@@ -1094,6 +1117,7 @@ withNormalizedLineDelimiters
 !String categoriesFor: #capitalized!converting!public! !
 !String categoriesFor: #codePage!constants!public! !
 !String categoriesFor: #contains:!public! !
+!String categoriesFor: #copyToBuffer:ofSize:!constants!copying!public! !
 !String categoriesFor: #displayOn:!printing!public! !
 !String categoriesFor: #displayString!printing!public! !
 !String categoriesFor: #equals:!comparing!public! !
@@ -1217,7 +1241,7 @@ fromAddress: anAddress
 
 fromAddress: anAddress length: anInteger
 	"Answer a new String, of length anInteger, copied from the first anInteger
-	characters of aString."
+	bytes of aString."
 
 	^anAddress isNull 
 		ifFalse: [
@@ -1234,14 +1258,11 @@ fromAtomId: anInteger
 		leftString: (KernelLibrary default getAtomName: anInteger lpBuffer: atomName nSize: atomName basicSize)!
 
 fromByteArray: aByteArray
-	| size |
+	| size answer |
 	size := aByteArray size.
-	^(self basicNew: size)
-		replaceFrom: 1
-			to: size
-			with: aByteArray
-			startingAt: 1;
-		yourself!
+	answer := self basicNew: size.
+	aByteArray replaceBytesOf: answer from: 1 to: size startingAt: 1.
+	^answer!
 
 fromId: anInteger
 	"Answer a new String loaded from resources."
@@ -1262,13 +1283,9 @@ fromId: resourceId in: anExternalLibraryOrHandle
 	^answer leftString: len!
 
 fromString: aString
-	"Answer a new instance of the receiver containing the same characters as the argument, aString."
+	"Answer an instance of the receiver containing the same characters as the argument, aString."
 
-	| size |
-	size := aString size.
-	^aString
-		replaceBytesOf: (self new: size)
-		from: 1 to: size startingAt: 1!
+	^aString asAnsiString!
 
 fromUtf16String: anAddressOrUtf16String
 	"Answer a byte-encoded String representation of the UTF16 string at the specified
@@ -1306,7 +1323,8 @@ icon
 
 initialize
 	NullPrintCharacter := $?.
-	empty := ''!
+	empty := ''.
+	VMLibrary default registryAt: #String put: self!
 
 lineDelimiter
 	"Answer an immutable instance of the receiver containing the host system 

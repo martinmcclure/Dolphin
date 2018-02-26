@@ -44,13 +44,13 @@ _equalsByteString: aString
 
 	^aString asUtf16String = self!
 
-_equalsUtf16String: aUnicodeString
-	"Private - Answer whether the receiver is equivalent to the <UnicodeString>, aString. 
-	Double-dispatched from UnicodeString>>=."
+_equalsUtf16String: aUtf16String
+	"Private - Answer whether the receiver is equivalent to the <Utf16String> argument.
+	Double-dispatched from Utf16String>>=."
 
 	"We should only get here if the byte comparison primitive failed unexpected."
 
-	^aUnicodeString primitiveFailed!
+	^Utf16String primitiveFailed!
 
 = comparand
 	"Answer whether the receiver and the <Object> argument, comparand, 
@@ -65,6 +65,7 @@ _equalsUtf16String: aUnicodeString
 asAnsiString
 	"Answer an ANSI encoded string representation of the receiver."
 
+	<primitive: 217>
 	^self asByteString: String!
 
 asByteString: aClass
@@ -77,13 +78,13 @@ asByteString: aClass
 				wideCharToMultiByte: aClass codePage
 				dwFlags: 0
 				lpWideCharStr: self
-				cchWideChar: -1
+				cchWideChar: size
 				lpMultiByteStr: buf
-				cchMultiByte: buf size + 1
+				cchMultiByte: buf size
 				lpDefaultChar: nil
 				lpUsedDefaultChar: nil.
 	bytes == 0 ifTrue: [^KernelLibrary default systemError].
-	buf resize: bytes - 1.
+	buf resize: bytes.
 	^buf!
 
 asLowercase
@@ -97,6 +98,9 @@ asString
 
 	#todo.	"Maybe return a Utf8String as the default byte encoding when converting from a wide string as otherwise the conversion is lossy?"
 	^self asByteString: String!
+
+asSymbol
+	^Symbol intern: self asUtf8String!
 
 asUppercase
 	| copy |
@@ -112,6 +116,7 @@ asUtf16String
 asUtf8String
 	"Answer a UTF8 encoded string representation of the receiver."
 
+	<primitive: 216>
 	^self asByteString: Utf8String!
 
 at: anInteger
@@ -134,6 +139,13 @@ byteSize
 	"Private - Answer the size in bytes of this object, including the null terminator."
 
 	^self basicSize + 2!
+
+copyToBuffer: anAddress ofSize: anInteger
+	CRTLibrary default
+		wcsncpy_s: anAddress
+		bufferSize: anInteger
+		strSource: self
+		count: CRTConstants._TRUNCATE!
 
 displayOn: aStream
 	"Append the receiver in end-user form to aStream.
@@ -220,7 +232,7 @@ resize: anInteger
 	^super resize: anInteger * 2!
 
 shallowCopy
-	"Implemented here to ensure that copied UnicodeStrings are correctly terminated with a double null"
+	"Implemented here to ensure that copied Utf16Strings are correctly terminated with a double null"
 
 	^self class fromAddress: self yourAddress length: self size!
 
@@ -271,6 +283,7 @@ wordAtOffset: anInteger put: anObject
 !Utf16String categoriesFor: #asByteString:!converting!private! !
 !Utf16String categoriesFor: #asLowercase!converting!public! !
 !Utf16String categoriesFor: #asString!converting!public! !
+!Utf16String categoriesFor: #asSymbol!converting!public! !
 !Utf16String categoriesFor: #asUppercase!converting!public! !
 !Utf16String categoriesFor: #asUtf16String!converting!public! !
 !Utf16String categoriesFor: #asUtf8String!converting!public! !
@@ -278,6 +291,7 @@ wordAtOffset: anInteger put: anObject
 !Utf16String categoriesFor: #at:put:!accessing!public! !
 !Utf16String categoriesFor: #beginsWith:!comparing!public! !
 !Utf16String categoriesFor: #byteSize!accessing!private! !
+!Utf16String categoriesFor: #copyToBuffer:ofSize:!constants!copying!public! !
 !Utf16String categoriesFor: #displayOn:!printing!public! !
 !Utf16String categoriesFor: #findString:startingAt:!public!searching! !
 !Utf16String categoriesFor: #first:!copying!public! !
@@ -311,8 +325,8 @@ fromAddress: anAddress
 	^self fromAddress: anAddress length: len!
 
 fromAddress: anAddress length: anInteger
-	"Answer a new UnicodeString, of length anInteger, copied from the first anInteger
-	characters pointed at by anAddress."
+	"Answer a new <Utf16String>, of length anInteger, copied from the first anInteger
+	code units pointed at by anAddress."
 
 	^anAddress isNull
 		ifFalse: 
@@ -326,27 +340,16 @@ fromAddress: anAddress length: anInteger
 			answer]!
 
 fromString: aString
-	"Answer a new instance of the receiver containing the same characters as the <String>
+	"Answer an instance of the receiver containing the same characters as the <String>
 	argument."
 
-	| answer cch |
-	cch := aString size.
-	"The result will have at most the number of code points as are present in the input, probably fewer if the input is UTF8"
-	answer := self new: cch.
-	^(cch := KernelLibrary default
-				multiByteToWideChar: aString codePage
-				dwFlags: 0
-				lpMultiByteStr: aString
-				cchMultiByte: -1
-				lpWideCharStr: answer
-				cchWideChar: cch + 1) == 0
-		ifTrue: [KernelLibrary default systemError]
-		ifFalse: [answer resize: cch - 1]	"MB_ERR_INVALID_CHARS"!
+	^aString asUtf16String!
 
 initialize
 	empty := self new
 				isImmutable: true;
-				yourself!
+				yourself.
+	VMLibrary default registryAt: #Utf16String put: self!
 
 new: anInteger
 	"Answer an instance of the receiver to accomodate exactly

@@ -25,9 +25,9 @@ _equalsByteString: aString
 
 	^false!
 
-_equalsUtf16String: anUnicodeString
-	"Private - Answer whether the receiver is equivalent to the <UnicodeString>, aString. 
-	Double-dispatched from UnicodeString>>=."
+_equalsUtf16String: aUtf16String
+	"Private - Answer whether the receiver is equivalent to the <Utf16String> argument.
+	Double-dispatched from Utf16String>>=."
 
 	^false!
 
@@ -54,7 +54,13 @@ asAnsiString
 	"Answer a new ANSI-encoded <readableString> containing the characters of 
 	the receiver."
 
-	^self class ansiClass fromString: self!
+	| size |
+	size := self size.
+	^self
+		replaceBytesOf: (String new: size)
+		from: 1
+		to: size
+		startingAt: 1!
 
 asBlock
 	"Answer a block capable of sending the receiver to an object"
@@ -300,7 +306,8 @@ initialize
 				instances of the receiver are kept."
 
 	Table isNil ifTrue: [Table := Array new: 3989].
-	empty := #''!
+	empty := #''.
+	VMLibrary default registryAt: #Symbol put: self!
 
 intern: aString
 	"Answer the unique Symbol for aString."

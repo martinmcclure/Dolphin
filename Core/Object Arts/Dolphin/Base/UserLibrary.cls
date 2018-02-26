@@ -63,7 +63,7 @@ createDialog: hInstance lpTemplate: template hWndParent: hParent lpDialogFunc: d
 			LPARAM dwInitParam 		// value passed to wmInitDialog:
 		);"
 
-	<stdcall: sdword CreateDialogParamA handle lpvoid handle lpvoid sdword>
+	<stdcall: sdword CreateDialogParamW handle lpvoid handle lpvoid sdword>
 	^self invalidCall!
 
 defDlgProc: hWnd msg: msg wParam: wParam lParam: lParam
@@ -78,7 +78,7 @@ defDlgProc: hWnd msg: msg wParam: wParam lParam: lParam
 		);"
 
 
-	<stdcall: uintptr DefDlgProcA handle dword uintptr uintptr>
+	<stdcall: uintptr DefDlgProcW handle dword uintptr uintptr>
 	^self invalidCall!
 
 defWindowProc: hWnd msg: msg wParam: wParam lParam: lParam
@@ -179,11 +179,11 @@ getKeyNameText: lParam lpString: aString nSize: anInteger
 	"Populate a string with the name of a virtual key code
 		int GetKeyNameText( 
 			LONG lParam,	// second parameter of keyboard message	
-			LPTSTR lpString,	// address of buffer for key name	
+			LPWSTR lpString,	// address of buffer for key name	
 			int nSize 	// maximum length of key-name string length	
 		);"
 
-	<stdcall: sdword GetKeyNameTextA dword lpstr sdword>
+	<stdcall: sdword GetKeyNameTextW dword lpwstr sdword>
 	^self invalidCall
 !
 
@@ -614,10 +614,10 @@ setDlgItemText: aWindowHandle nIDDlgItem: anIntegerId lpString: aString
 		BOOL SetDlgItemText(
   			HWND  hDlg,		// handle of dialog box
 			int  nIDDlgItem,	// identifier of control
-			LPCTSTR  lpString 	// text to set
+			LPCWSTR  lpString 	// text to set
 			);"
 
-	<stdcall: bool SetDlgItemTextA handle sdword lpvoid>
+	<stdcall: bool SetDlgItemTextW handle sdword lpwstr>
 	^self invalidCall!
 
 setKeyboardState: a256ByteArray
@@ -659,11 +659,13 @@ setWindowDWORD: aWindowHandle nIndex: offset dwNewDWORD: value
 setWindowText: aWindowHandle lpString: aString
 	"Set the 'text' of the specified window.
 		BOOL SetWindowText(
-			HWND hWnd,	// handle of window or control
-			LPCTSTR lpString 	// address of string
+			HWND hWnd,		// handle of window or control
+			LPCWSTR lpString 	// address of string
 		);"
 
-	<stdcall: bool SetWindowTextA handle lpvoid>
+	"Note that we can always pass a UTF16 string - Windows will translate automatically for non-Unicode windows."
+
+	<stdcall: bool SetWindowTextW handle lpwstr>
 	^self invalidCall!
 
 showWindow: aWindowHandle nCmdShow: flags
@@ -686,8 +688,8 @@ stringLowerA: aString
 	<stdcall: void CharLowerA lpvoid>
 	^self invalidCall!
 
-stringLowerW: aUnicodeString 
-	"Convert a <UnicodeString> to lower case IN PLACE. This will be dependent on the semantics
+stringLowerW: aUtf16String 
+	"Convert a <Utf16String> to lower case IN PLACE. This will be dependent on the semantics
 	of the language selected by the user during setup or by using Control Panel. N.B. We ignore
 	the return value as it will be a pointer to the argument.
 
@@ -706,12 +708,12 @@ stringUpperA: aString
 	<stdcall: void CharUpperA lpvoid>
 	^self invalidCall!
 
-stringUpperW: aUnicodeString 
-	"Convert a <UnicodeString> to uppercase IN PLACE. This will be dependent on the semantics of
+stringUpperW: aUtf16String 
+	"Convert a <Utf16String> to uppercase IN PLACE. This will be dependent on the semantics of
 	the language selected by the user during setup or by using Control Panel. N.B. We ignore the
 	return value as it will be a pointer to the argument.
 
-	LPTWTR CharUpper(LPWSTR lpsz);"
+	LPWSTR CharUpperW(LPWSTR lpsz);"
 
 	<stdcall: void CharUpperW lpvoid>
 	^self invalidCall!
